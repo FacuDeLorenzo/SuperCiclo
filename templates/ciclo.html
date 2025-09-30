@@ -1,44 +1,72 @@
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
+
 <head>
     <meta charset="UTF-8"/>
     <title> SuperCiclo by h4ch3 </title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon"/>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
+
     <style>
+        thead th {
+          position: sticky;
+          top: 0;
+          z-index: 2;
+        }
+
 
         td.on {
-        background-color: #198754;
-        color: white;
-         font-weight: bold;
+          background-color: #198754;
+          color: white;
+          font-weight: bold;
         }
 
         td.off {
-        background-color: #6c757d;
-         color: white;
+          background-color: #6c757d;
+          color: white;
         }
 
-        th, td {
-        text-align: center;
-        vertical-align: middle;
-        padding: 0.1rem;
-        font-size: 10px;
+        th,
+        td {
+          text-align: center;
+          vertical-align: middle;
+          padding: 0.1rem;
+          font-size: 10px;
         }
+
         #particles-js {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1; /* detrás del contenido */
-}
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: -1;
+        }
 
+        .form-note {
+          font-size: .85rem;
+          color: #9ca3af;
+        }
+
+        .field-icon {
+          width: 2.6rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .spinner-inline {
+          width: 1rem;
+          height: 1rem;
+          margin-left: .5rem;
+        }
     </style>
 </head>
+
 <body>
 
 <div class="toast-container position-fixed top-0 start-50 translate-middle-x mt-3" id="toastArea"></div>
@@ -52,7 +80,8 @@
                 </h5>
 
                 <div class="dropdown">
-                    <button class="btn btn-sm btn-outline-light dropdown-toggle shadow-sm" type="button" id="dropdownTools"
+                    <button class="btn btn-sm btn-outline-light dropdown-toggle shadow-sm" type="button"
+                            id="dropdownTools"
                             data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-tools"></i>
                     </button>
@@ -63,17 +92,22 @@
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalAcercaDe">
-                                <i class="bi bi-info-circle"></i> Acerca de...
+                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tuyaModal">
+                                <i class="bi bi-plugin"></i> Test Device
                             </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="https://supercannabis.ar/es/" target="_blank"><i
+                                    class="bi bi-radioactive"></i> SuperCannabis.AR </a>
                         </li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <a class="dropdown-item" href="https://supercannabis.ar/es/" target="_blank"><i class="bi bi-radioactive"></i> SuperCannabis.AR </a>
+                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalAcercaDe">
+                                <i class="bi bi-info-circle"></i> Acerca de...
+                            </a>
                         </li>
-
                     </ul>
                 </div>
             </div>
@@ -95,22 +129,26 @@
                         <label for="horaInicio"><i class="bi bi-clock"></i> HS. INICIO SUPERCICLO</label>
                     </div>
                     <div class="form-floating mb-2">
-                        <input type="number" class="form-control shadow-sm" id="horasOn" placeholder="Horas ON" required min="0.1"
+                        <input type="number" class="form-control shadow-sm" id="horasOn" placeholder="Horas ON" required
+                               min="0.1"
                                step="0.1" value="13"/>
                         <label for="horasOn"><i class="bi bi-lightbulb-fill"></i> HS. ON</label>
                     </div>
                     <div class="form-floating mb-2">
-                        <input type="number" class="form-control shadow-sm" id="horasOff" placeholder="Horas OFF" required
+                        <input type="number" class="form-control shadow-sm" id="horasOff" placeholder="Horas OFF"
+                               required
                                min="0.1" step="0.1" value="13"/>
                         <label for="horasOff"><i class="bi bi-lightbulb-off"></i> HS. OFF</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="number" class="form-control shadow-sm" id="diasReales" placeholder="Cantidad de días reales"
+                        <input type="number" class="form-control shadow-sm" id="diasReales"
+                               placeholder="Cantidad de días reales"
                                required min="1" step="1" value="80"/>
                         <label for="diasReales"><i class="bi bi-calendar2-event"></i> CICLO (días)</label>
                     </div>
                     <div class="text-center">
-                        <button type="submit" class="btn btn-outline-info me-2 shadow-sm" ><i class="bi bi-radioactive"></i>
+                        <button type="submit" class="btn btn-outline-info me-2 shadow-sm"><i
+                                class="bi bi-radioactive"></i>
                             Generar
                         </button>
                         <button type="button" class="btn btn-outline-success shadow-sm" onclick="iniciarCiclo()">
@@ -154,6 +192,118 @@
     </div>
     <!-- / Modal Matriz -->
 
+
+    <!-- modal test device -->
+
+    <div class="modal fade" id="tuyaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <div>
+                        <h5 class="modal-title d-flex align-items-center gap-2">
+                            <i class="bi bi-plugin"></i>
+                            Test Device
+                        </h5>
+                        <div class="form-note small">Complete los datos para controlar el dispositivo.</div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span id="statusBadge" class="badge bg-secondary">Estado: desconocido</span>
+                        <button class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                </div>
+
+                <hr class="m-0 p-0">
+
+                <div class="modal-body">
+                    <form id="tuyaForm" class="row g-3 needs-validation" novalidate>
+                        <!-- Device ID -->
+                        <div class="col-12">
+                            <label for="device_id" class="form-label">Device ID</label>
+                            <div class="input-group">
+                                <span class="input-group-text field-icon"><i class="bi bi-hash"></i></span>
+                                <input id="device_id" name="device_id" type="text" class="form-control"
+                                       placeholder="eb4764e9f1xxxxxxxxxxxx" required>
+                                <button type="button" class="btn btn-outline-secondary" id="pasteDevice">Pegar</button>
+                                <div class="invalid-feedback small">El Device ID es obligatorio.</div>
+                            </div>
+                            <div class="form-note mt-1 small">Ej: eb4764e9f1... (obtenido con <code>tinytuya
+                                wizard</code>)
+                            </div>
+                        </div>
+
+                        <!-- IP & Versión -->
+                        <div class="col-12 col-md-7">
+                            <label for="ip" class="form-label">IP (LAN)</label>
+                            <div class="input-group">
+                                <span class="input-group-text field-icon"><i class="bi bi-plugin"></i></span>
+                                <input id="ip" name="ip" type="text" class="form-control" placeholder="192.168.1.50"
+                                       pattern="^([0-9]{1,3}\.){3}[0-9]{1,3}$" required>
+                                <div class="invalid-feedback small">IP válida requerida (ej. 192.168.1.50).</div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-5">
+                            <label for="version" class="form-label">Versión Tuya</label>
+                            <select id="version" name="version" class="form-select" required>
+                                <option value="3.3" selected>3.3 (por defecto)</option>
+                                <option value="3.4">3.4</option>
+                            </select>
+                            <div class="invalid-feedback small">Seleccioná la versión (3.3 o 3.4).</div>
+                        </div>
+
+                        <!-- Local Key -->
+                        <div class="col-12">
+                            <label for="local_key" class="form-label">Local Key</label>
+                            <div class="input-group">
+                                <span class="input-group-text field-icon"><i class="bi bi-key-fill"></i></span>
+                                <input id="local_key" name="local_key" type="text" class="form-control"
+                                       placeholder="22 caracteres o mas" minlength="16" required>
+                                <button type="button" class="btn btn-outline-secondary d-none" id="showKey"><i
+                                        class="bi bi-eye"></i></button>
+                                <div class="invalid-feedback small">La Local Key es obligatoria.</div>
+                            </div>
+                            <div class="form-note mt-1 small"><code>Device ID, IP (LAN), Local Key</code> se obtiene con
+                                <code>tinytuya wizard</code>.
+                            </div>
+                        </div>
+
+                        <hr class="mt-3 mb-0 p-0">
+
+                        <!-- Acciones -->
+                        <div class="col-12 d-flex justify-content-between align-items-center gap-2 mt-2">
+                            <div class="d-flex gap-2">
+                                <button id="btnOn" type="button"
+                                        class="btn btn-sm btn-success d-flex align-items-center"
+                                        aria-live="polite">
+                                    <i class="bi bi-lightning-fill me-2"></i> Encender
+                                    <span class="spinner-border spinner-border-sm visually-hidden spinner-inline"
+                                          role="status"
+                                          aria-hidden="true"></span>
+                                </button>
+                                <button id="btnOff" type="button"
+                                        class="btn btn-sm btn-danger d-flex align-items-center">
+                                    <i class="bi bi-power me-2"></i> Apagar
+                                    <span class="spinner-border spinner-border-sm visually-hidden spinner-inline"
+                                          role="status"
+                                          aria-hidden="true"></span>
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="modal-footer border-0">
+                    <small class="text-muted">Verificar que la aplicación y el dispositivo estén en la misma
+                        red.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--testdevice-->
+
     <div class="modal fade" id="modalAcercaDe" tabindex="-1" aria-labelledby="modalAcercaDeLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -163,7 +313,7 @@
 
                 </div>
                 <div class="modal-body">
- <pre class="text-center border p-2 rounded shadow">
+            <pre class="text-center border p-2 rounded shadow">
 $$\       $$\   $$\           $$\        $$$$$$\
 $$ |      $$ |  $$ |          $$ |      $$ ___$$\
 $$$$$$$\  $$ |  $$ | $$$$$$$\ $$$$$$$\  \_/   $$ |
@@ -174,7 +324,9 @@ $$ |  $$ |      $$ |\$$$$$$$\ $$ |  $$ |\$$$$$$  |
 \__|  \__|      \__| \_______|\__|  \__| \______/
 </pre>
                     <strong>Nombre:</strong> SuperCiclo by h4ch3 <br>
-                    <strong>Descripción:</strong> Aplicación de escritorio (Windows) que permite programar ciclos de encendido / apagado
+                    <strong>Descripción:</strong> Aplicación de escritorio (Windows) que permite programar ciclos de
+                    encendido /
+                    apagado
                     sobre un enchufe inteligente Tuya. <br>
                     <strong>Versión: 1.0</strong> <br>
                     <strong>Desarrollador:</strong> h4ch3
@@ -188,29 +340,46 @@ $$ |  $$ |      $$ |\$$$$$$$\ $$ |  $$ |\$$$$$$  |
     </div>
 
 
-
 </div>
 
 <script>
     let eventosGenerados = [];
     let cicloEnEjecucion = false;
 
+    // -------------------------
+    // Toast unificado
+    // -------------------------
+    const toastContainer = document.getElementById("toastArea") || document.querySelector(".toast-container");
+
     function showToast(msg, type = "success", delay = 4000) {
       const id = `toast-${Date.now()}`;
       const html = `
-        <div id="${id}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-          <div class="toast-header">
-            <i class="text-${type} bi bi-radioactive me-2"></i>
-            <strong class="me-auto">Notificación</strong>
-            <small>ahora</small>
-            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-          </div>
-          <div class="toast-body">${msg}</div>
-        </div>`;
-      document.getElementById("toastArea").insertAdjacentHTML("beforeend", html);
+    <div id="${id}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <i class="text-${type} bi bi-radioactive me-2"></i>
+        <strong class="me-auto">Notificación</strong>
+        <small>ahora</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+      </div>
+      <div class="toast-body">${msg}</div>
+    </div>`;
+      toastContainer.insertAdjacentHTML("beforeend", html);
       new bootstrap.Toast(document.getElementById(id), { delay }).show();
     }
 
+    // -------------------------
+    // Spinner y botones ocupados
+    // -------------------------
+    function setBusy(button, busy = true) {
+      const spinner = button.querySelector('.spinner-inline');
+      button.disabled = busy;
+      if (busy) spinner?.classList.remove('visually-hidden');
+      else spinner?.classList.add('visually-hidden');
+    }
+
+    // -------------------------
+    // Ciclo de eventos
+    // -------------------------
     function iniciarCiclo() {
       if (cicloEnEjecucion) {
         console.log("El ciclo ya está corriendo; no se reinicia.");
@@ -232,7 +401,7 @@ $$ |  $$ |      $$ |\$$$$$$$\ $$ |  $$ |\$$$$$$  |
         const horasOn = document.getElementById("horasOn").value;
         const horasOff = document.getElementById("horasOff").value;
         const superciclo = `${horasOn}h ON / ${horasOff}h OFF`;
-        const fechaInicio = new Date().toISOString().split("T")[0];  // <-- Fecha actual automática
+        const fechaInicio = new Date().toISOString().split("T")[0];
 
         const res = await fetch("/guardar-json", {
           method: "POST",
@@ -240,7 +409,7 @@ $$ |  $$ |      $$ |\$$$$$$$\ $$ |  $$ |\$$$$$$  |
           body: JSON.stringify({
             eventos: eventosGenerados,
             superciclo: superciclo,
-            fecha_inicio: fechaInicio  // <-- se agrega automáticamente
+            fecha_inicio: fechaInicio
           }),
         });
 
@@ -254,8 +423,9 @@ $$ |  $$ |      $$ |\$$$$$$$\ $$ |  $$ |\$$$$$$  |
       }
     });
 
-
-
+    // -------------------------
+    // Generación de la matriz de horario
+    // -------------------------
     document.getElementById("scheduleForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const horaInicioStr = document.getElementById("horaInicio").value.trim();
@@ -314,6 +484,9 @@ $$ |  $$ |      $$ |\$$$$$$$\ $$ |  $$ |\$$$$$$  |
       return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
     }
 
+    // -------------------------
+    // Estado inicial SuperCiclo
+    // -------------------------
     window.addEventListener("DOMContentLoaded", () => {
       fetch("/verificar_horarios")
         .then((r) => r.json())
@@ -336,60 +509,182 @@ $$ |  $$ |      $$ |\$$$$$$$\ $$ |  $$ |\$$$$$$  |
         });
     });
 
+    // -------------------------
+    // Refresco estado ciclo
+    // -------------------------
     setInterval(() => {
       fetch("/estado_ciclo")
         .then((r) => r.json())
         .then((d) => {
           document.getElementById("estadoContainer").innerHTML = `
-            <div class="alert shadow-sm alert-${d.estado === "on" ? "success" : "danger"}">
-              <h5 class="alert-heading">Info SuperCiclo...</h5>
-              <hr class="m-0 p-0">
-              <strong>SuperCiclo:</strong> ${d.superciclo}<br>
-              <strong>Estado actual:</strong> ${d.estado.toUpperCase()}<br>
-              <strong>Próximo estado:</strong> ${d.proximo}<br>
-              <strong>Hora:</strong> ${d.hora}
-            </div>`;
+        <div class="alert shadow-sm alert-${d.estado === "on" ? "success" : "danger"}">
+          <h5 class="alert-heading">Info SuperCiclo...</h5>
+          <hr class="m-0 p-0">
+          <strong>SuperCiclo:</strong> ${d.superciclo}<br>
+          <strong>Dia:</strong> ${d.supercicloDiaActual}<br>
+          <strong>Dias restantes:</strong> ${d.supercicloDiasRestantes}<br>
+          <strong>Estado actual:</strong> ${d.estado.toUpperCase()}<br>
+          <strong>Próximo estado:</strong> ${d.proximo}<br>
+          <strong>Hora:</strong> ${d.hora}
+        </div>`;
         });
     }, 5000);
 
-
-particlesJS("particles-js", {
-  "particles": {
-    "number": { "value": 100 },
-    "color": { "value": "#ffffff" },
-    "shape": { "type": "circle" },
-    "opacity": { "value": 0.2 },
-    "size": { "value": 3 },
-    "line_linked": {
-      "enable": true,
-      "distance": 150,
-      "color": "#ffffff",
-      "opacity": 0.4,
-      "width": 1
-    },
-    "move": { "enable": true, "speed": 2 }
-  }
-});
-
-    function abrirConfig() {
-  fetch("/config-ini", { method: "POST" })
-    .then(r => r.json())
-    .then(d => {
-      if (d.ok) {
-        showToast(
-          "Se abrió <code>config.ini</code>. <br>Reinicia la aplicación para aplicar cambios.",
-          "info"
-        );
-      } else {
-        showToast("Error al abrir config.ini: " + d.error, "danger");
+    // -------------------------
+    // Particles.js (decorativo)
+    // -------------------------
+    particlesJS("particles-js", {
+      "particles": {
+        "number": { "value": 100 },
+        "color": { "value": "#ffffff" },
+        "shape": { "type": "circle" },
+        "opacity": { "value": 0.2 },
+        "size": { "value": 3 },
+        "line_linked": {
+          "enable": true,
+          "distance": 150,
+          "color": "#ffffff",
+          "opacity": 0.4,
+          "width": 1
+        },
+        "move": { "enable": true, "speed": 2 }
       }
-    })
-    .catch(err => showToast("Error: " + err.message, "danger"));
-}
+    });
 
+    // -------------------------
+    // Config.ini
+    // -------------------------
+    function abrirConfig() {
+      fetch("/config-ini", { method: "POST" })
+        .then(r => r.json())
+        .then(d => {
+          if (d.ok) showToast("Se abrió <code>config.ini</code>. <br>Reinicia la aplicación para aplicar cambios.", "info");
+          else showToast("Error al abrir config.ini: " + d.error, "danger");
+        })
+        .catch(err => showToast("Error: " + err.message, "danger"));
+    }
 
+    // -------------------------
+    // Formulario Tuya
+    // -------------------------
+    const form = document.getElementById('tuyaForm');
+    const btnOn = document.getElementById('btnOn');
+    const btnOff = document.getElementById('btnOff');
+    const btnCheck = document.getElementById('btnCheck');
+    const statusBadge = document.getElementById('statusBadge');
+    const pasteDevice = document.getElementById('pasteDevice');
+    const showKey = document.getElementById('showKey');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!form.checkValidity()) {
+        e.stopPropagation();
+        form.classList.add('was-validated');
+        showToast('Revisá los campos del formulario.', 'warning');
+        return;
+      }
+    });
+
+    // -------------------------
+    // Clipboard y Local Key
+    // -------------------------
+    pasteDevice.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) document.getElementById('device_id').value = text.trim();
+        showToast('Pegado desde portapapeles', 'success');
+      } catch {
+        showToast('No se pudo acceder al portapapeles', 'danger');
+      }
+    });
+
+    showKey.addEventListener('click', () => {
+      const keyInput = document.getElementById('local_key');
+      if (keyInput.type === 'password' || keyInput.type === 'text' && keyInput.dataset.hidden !== 'false') {
+        keyInput.type = 'text';
+        keyInput.dataset.hidden = 'false';
+        showKey.innerHTML = '<i class="bi bi-eye-slash"></i>';
+      } else {
+        keyInput.type = 'password';
+        keyInput.dataset.hidden = 'true';
+        showKey.innerHTML = '<i class="bi bi-eye"></i>';
+      }
+    });
+    document.getElementById('local_key').type = 'password';
+    document.getElementById('local_key').dataset.hidden = 'true';
+
+    // -------------------------
+    // Leer configuración
+    // -------------------------
+    function readConfig() {
+      return {
+        device_id: document.getElementById('device_id').value.trim(),
+        ip: document.getElementById('ip').value.trim(),
+        local_key: document.getElementById('local_key').value.trim(),
+        version: document.getElementById('version').value
+      };
+    }
+
+    // -------------------------
+    // API on/off/check
+    // -------------------------
+    async function callApi(path, successMsg, successVariant = 'success') {
+      const cfg = readConfig();
+      if (!cfg.device_id || !cfg.ip || !cfg.local_key) {
+        showToast('Completá Device ID, IP y Local Key.', 'warning');
+        return { ok: false, error: 'missing_fields' };
+      }
+
+      const actor = path.includes('on') ? btnOn : (path.includes('off') ? btnOff : null);
+      if (actor) setBusy(actor, true);
+
+      try {
+        const res = await fetch(path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(cfg)
+        });
+
+        const data = await res.json().catch(() => ({ ok: false, error: 'respuesta no JSON' }));
+        if (!res.ok || data.ok === false) {
+          const err = data?.error || `HTTP ${res.status}`;
+          showToast(`Fallo: ${err}`, 'danger');
+          return { ok: false, error: err };
+        }
+
+        if (successMsg) showToast(successMsg, successVariant);
+        if (data && data.result !== undefined && (path.endsWith('/on') || path.endsWith('/off'))) {
+          const stateText = path.endsWith('/on') ? 'ENCENDIDO' : 'APAGADO';
+          statusBadge.className = path.endsWith('/on') ? 'badge bg-success' : 'badge bg-secondary';
+          statusBadge.textContent = `Estado: ${stateText}`;
+        }
+        return { ok: true, data };
+      } catch (err) {
+        showToast(`Error de conexión: ${err.message}`, 'danger');
+        return { ok: false, error: err.message };
+      } finally {
+        if (actor) setBusy(actor, false);
+      }
+    }
+
+    // -------------------------
+    // Botones
+    // -------------------------
+    btnOn.addEventListener('click', async () => callApi('/api/tuya/on', 'Dispositivo ENCENDIDO', 'success'));
+    btnOff.addEventListener('click', async () => callApi('/api/tuya/off', 'Dispositivo APAGADO', 'secondary'));
+
+    // -------------------------
+    // Modal Tuya: reset UI
+    // -------------------------
+    const tuyaModalEl = document.getElementById('tuyaModal');
+    tuyaModalEl.addEventListener('show.bs.modal', () => {
+      form.classList.remove('was-validated');
+      statusBadge.className = 'badge bg-secondary';
+      statusBadge.textContent = 'Estado: desconocido';
+    });
 </script>
 
 
 </body>
+
 </html>

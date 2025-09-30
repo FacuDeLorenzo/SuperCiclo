@@ -319,3 +319,77 @@ def abrir_config_ini():
     except Exception as e:
         logging.exception("Error al abrir config.ini")
         return jsonify(ok=False, error=str(e)), 500
+
+
+def make_device(cfg, persist=True, retry_limit=2, retry_delay=1, timeout=5):
+    """
+    Crea y configura el objeto dispositivo de TinyTuya de forma segura.
+    - cfg: dict con keys: device_id, ip, local_key, version
+    - persist: si mantener socket abierto (True/False)
+    - retry_limit: cantidad de reintentos (set_socketRetryLimit)
+    - retry_delay: delay entre reintentos (set_socketRetryDelay)
+    - timeout: tiempo de conexión en segundos (set_socketTimeout)
+    """
+    dev = tinytuya.OutletDevice(
+        cfg["device_id"],
+        cfg["ip"],
+        cfg.get("local_key")
+    )
+    # versión
+    try:
+        dev.set_version(float(cfg.get("version", "3.3")))
+    except Exception:
+        dev.set_version(3.3)
+
+    # configuración socket / timeouts (nombres correctos)
+    try:
+        dev.set_socketPersistent(bool(persist))
+    except Exception:
+
+        pass
+
+    try:
+        dev.set_socketRetryLimit(int(retry_limit))
+        dev.set_socketRetryDelay(int(retry_delay))
+    except Exception:
+        pass
+
+    try:
+        dev.set_socketTimeout(float(timeout))
+    except Exception:
+        pass
+
+    # opcional: set NODELAY si lo querés
+    try:
+        dev.set_socketNODELAY(True)
+    except Exception:
+        pass
+
+    # opcional: set_sendWait si necesitás esperar respuesta
+    try:
+        dev.set_sendWait(0.4)
+    except Exception:
+        pass
+
+    return dev
+
+
+@app.post("/api/tuya/on")
+def api_on():
+    cfg = request.get_json(force=True)
+    try:
+        dev = make_device(cfg)
+        result = dev.set_status(True)   # usa set_status (sin dps explícito)
+        return jsonify({"ok": True, "result": result})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+@app.post("/api/tuya/off")
+def api_off():
+    cfg = request.get_json(force=True)
+    try:
+        dev = make_device(cfg)
+        result = dev.set_status(False)
+        return jsonify({"ok": True, "result": result})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
