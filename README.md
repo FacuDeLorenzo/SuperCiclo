@@ -5,6 +5,9 @@ Se ejecuta localmente con **Flask** (backend) y se muestra en una ventana **pywe
 
 ![image](https://github.com/user-attachments/assets/e5433efe-4fe4-45b3-8bf2-1c3b7b52efd4)
 ![image](https://github.com/user-attachments/assets/dcd667e6-d7ff-45ac-8ea4-f062341c3a86)
+<img width="1216" height="843" alt="image" src="https://github.com/user-attachments/assets/8d57852e-a624-49fa-a216-9808ec27e3dc" />
+<img width="246" height="125" alt="image" src="https://github.com/user-attachments/assets/d3052594-8f6a-4ab8-b877-60c381e92ddb" />
+
 
 
 ---
