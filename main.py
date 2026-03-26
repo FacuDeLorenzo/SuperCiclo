@@ -1,11 +1,17 @@
+import os
+import sys
 import threading
+import time
+from pathlib import Path
+
+# config.ini / json/ / logs de app.py usan rutas relativas al cwd
+ROOT = Path(__file__).resolve().parent
+os.chdir(ROOT)
+
 import webview
 import pystray
 from PIL import Image, ImageDraw
-import sys
-import time
-import os
-from pathlib import Path
+
 from app import app
 
 try:
@@ -31,18 +37,19 @@ def start_flask():
 # Icono de tray
 # -------------------------
 def create_image():
-    try:
-        return Image.open("trayicon.ico")
-    except FileNotFoundError:
-        width = height = 64
-        background = (30, 120, 60)
-        foreground = (0, 0, 0)
-        image = Image.new('RGB', (width, height), background)
-        dc = ImageDraw.Draw(image)
-        size = int(width * 0.8)
-        offset = (width - size) // 2
-        dc.rectangle((offset, offset, width - offset, height - offset), fill=foreground)
-        return image
+    for name in ("static/img/trayicon.png", "static/img/trayicon.ico", "trayicon.ico"):
+        p = ROOT / name
+        if p.is_file():
+            return Image.open(p)
+    width = height = 64
+    background = (30, 120, 60)
+    foreground = (0, 0, 0)
+    image = Image.new('RGB', (width, height), background)
+    dc = ImageDraw.Draw(image)
+    size = int(width * 0.8)
+    offset = (width - size) // 2
+    dc.rectangle((offset, offset, width - offset, height - offset), fill=foreground)
+    return image
 
 # -------------------------
 # Mostrar/Ocultar ventana
@@ -151,6 +158,13 @@ def tray():
 # Main
 # -------------------------
 if __name__ == "__main__":
+    if sys.platform != "win32":
+        print("main.py es solo para Windows (ventana + bandeja).")
+        print("En Raspberry Pi / Linux: activá el venv, luego:")
+        print("  export FLASK_APP=app:app && flask run --host=0.0.0.0 --port 8001")
+        print("Abrí http://127.0.0.1:8001/ en el navegador (o usá el servicio systemd del README).")
+        sys.exit(1)
+
     flask_thread = threading.Thread(target=start_flask, daemon=True)
     flask_thread.start()
     time.sleep(1)

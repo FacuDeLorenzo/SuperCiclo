@@ -1,0 +1,23 @@
+# Copy to /etc/systemd/system/superciclo.service and adjust User, paths, port.
+# sudo systemctl daemon-reload && sudo systemctl enable --now superciclo
+
+[Unit]
+Description=SuperCiclo Flask backend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/SuperCiclo
+Environment=FLASK_APP=app:app
+Environment=PATH=/home/pi/SuperCiclo/.venv/bin
+# Optional: disable auto-resume of cycle on boot
+# Environment=SUPERCICLO_NO_AUTOSTART=1
+ExecStart=/home/pi/SuperCiclo/.venv/bin/flask run --host=0.0.0.0 --port=8001
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

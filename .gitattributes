@@ -1,0 +1,2 @@
+# Scripts de deploy para Linux / Pi: siempre LF
+*.sh text eol=lf

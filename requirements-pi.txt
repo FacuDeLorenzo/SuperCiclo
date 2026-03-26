@@ -1,0 +1,5 @@
+# Backend only (Raspberry Pi / Linux headless). Use with: pip install -r requirements-pi.txt
+Flask>=3.1,<4
+tinytuya>=1.17,<2
+requests>=2.31
+cryptography>=42

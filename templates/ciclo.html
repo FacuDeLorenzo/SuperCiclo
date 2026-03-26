@@ -87,13 +87,8 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownTools">
                         <li>
-                            <a class="dropdown-item" href="#" onclick="abrirConfig()">
-                                <i class="bi bi-gear"></i> Configuración
-                            </a>
-                        </li>
-                        <li>
                             <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tuyaModal">
-                                <i class="bi bi-plugin"></i> Test Device
+                                <i class="bi bi-plugin"></i> Dispositivo Tuya
                             </a>
                         </li>
                         <li>
@@ -202,9 +197,9 @@
                     <div>
                         <h5 class="modal-title d-flex align-items-center gap-2">
                             <i class="bi bi-plugin"></i>
-                            Test Device
+                            Dispositivo Tuya
                         </h5>
-                        <div class="form-note small">Complete los datos para controlar el dispositivo.</div>
+                        <div class="form-note small">Guardá en el servidor (persistente) y probá ON/OFF en la misma red LAN.</div>
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <span id="statusBadge" class="badge bg-secondary">Estado: desconocido</span>
@@ -245,8 +240,8 @@
                         <div class="col-12 col-md-5">
                             <label for="version" class="form-label">Versión Tuya</label>
                             <select id="version" name="version" class="form-select" required>
-                                <option value="3.3" selected>3.3 (por defecto)</option>
-                                <option value="3.4">3.4</option>
+                                <option value="3.3">3.3</option>
+                                <option value="3.4" selected>3.4 (por defecto)</option>
                             </select>
                             <div class="invalid-feedback small">Seleccioná la versión (3.3 o 3.4).</div>
                         </div>
@@ -257,8 +252,8 @@
                             <div class="input-group">
                                 <span class="input-group-text field-icon"><i class="bi bi-key-fill"></i></span>
                                 <input id="local_key" name="local_key" type="text" class="form-control"
-                                       placeholder="22 caracteres o mas" minlength="16" required>
-                                <button type="button" class="btn btn-outline-secondary d-none" id="showKey"><i
+                                       placeholder="16+ caracteres" minlength="16" required>
+                                <button type="button" class="btn btn-outline-secondary" id="showKey" title="Mostrar/ocultar"><i
                                         class="bi bi-eye"></i></button>
                                 <div class="invalid-feedback small">La Local Key es obligatoria.</div>
                             </div>
@@ -270,8 +265,11 @@
                         <hr class="mt-3 mb-0 p-0">
 
                         <!-- Acciones -->
-                        <div class="col-12 d-flex justify-content-between align-items-center gap-2 mt-2">
-                            <div class="d-flex gap-2">
+                        <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-2 mt-2">
+                            <div class="d-flex flex-wrap gap-2">
+                                <button id="btnGuardarTuya" type="button" class="btn btn-sm btn-primary d-flex align-items-center">
+                                    <i class="bi bi-cloud-upload me-1"></i> Guardar en servidor
+                                </button>
                                 <button id="btnOn" type="button"
                                         class="btn btn-sm btn-success d-flex align-items-center"
                                         aria-live="polite">
@@ -288,15 +286,13 @@
                                           aria-hidden="true"></span>
                                 </button>
                             </div>
-
                         </div>
 
                     </form>
                 </div>
 
-                <div class="modal-footer border-0">
-                    <small class="text-muted">Verificar que la aplicación y el dispositivo estén en la misma
-                        red.</small>
+                <div class="modal-footer border-0 pt-0">
+                    <small class="text-muted">Misma red WiFi/LAN que el enchufe. Versión <strong>3.4</strong> viene seleccionada por defecto.</small>
                 </div>
             </div>
         </div>
@@ -345,6 +341,7 @@ $$ |  $$ |      $$ |\$$$$$$$\ $$ |  $$ |\$$$$$$  |
 <script>
     let eventosGenerados = [];
     let cicloEnEjecucion = false;
+    let tuyaLocalKeySaved = false;
 
     // -------------------------
     // Toast unificado
@@ -388,8 +385,9 @@ $$ |  $$ |      $$ |\$$$$$$$\ $$ |  $$ |\$$$$$$  |
       fetch("/iniciar_ciclo", { method: "POST" })
         .then(r => r.json())
         .then(d => {
-          showToast(d.mensaje, d.exito ? "success" : "info");
-          if (d.exito) cicloEnEjecucion = true;
+          const fail = /configurá|no se pudo cargar/i.test(d.mensaje || "");
+          showToast(d.mensaje, fail ? "warning" : "success");
+          if (!fail) cicloEnEjecucion = true;
         })
         .catch(err => showToast("Error: " + err.message, "danger"));
     }
@@ -485,28 +483,66 @@ $$ |  $$ |      $$ |\$$$$$$$\ $$ |  $$ |\$$$$$$  |
     }
 
     // -------------------------
+    // Config Tuya desde servidor
+    // -------------------------
+    function applyTuyaConfigToForm(c) {
+      tuyaLocalKeySaved = !!c.local_key_saved;
+      document.getElementById("device_id").value = c.device_id || "";
+      document.getElementById("ip").value = c.ip || "";
+      const v = c.version != null ? String(c.version) : "3.4";
+      document.getElementById("version").value = v === "3.4" || v === "3.3" ? v : "3.4";
+      const lk = document.getElementById("local_key");
+      lk.value = "";
+      if (tuyaLocalKeySaved) {
+        lk.placeholder = "Vacío = conservar clave ya guardada en el servidor";
+        lk.removeAttribute("required");
+        lk.removeAttribute("minlength");
+      } else {
+        lk.placeholder = "16+ caracteres";
+        lk.setAttribute("required", "");
+        lk.setAttribute("minlength", "16");
+      }
+    }
+
+    async function refreshTuyaFromServer() {
+      const r = await fetch("/api/config/tuya");
+      const c = await r.json();
+      applyTuyaConfigToForm(c);
+      return c;
+    }
+
+    // -------------------------
     // Estado inicial SuperCiclo
     // -------------------------
-    window.addEventListener("DOMContentLoaded", () => {
-      fetch("/verificar_horarios")
-        .then((r) => r.json())
-        .then((data) => {
-          const cont = document.getElementById("estadoContainer");
-          if (data.existe) {
+    window.addEventListener("DOMContentLoaded", async () => {
+      const cont = document.getElementById("estadoContainer");
+      try {
+        const tuya = await refreshTuyaFromServer();
+        if (!tuya.configured) {
+          showToast("Configurá el dispositivo Tuya (guardar en servidor) para ejecutar el ciclo automático.", "warning");
+          new bootstrap.Modal("#tuyaModal").show();
+        }
+        const data = await fetch("/verificar_horarios").then((r) => r.json());
+        if (data.existe) {
+          if (data.tuya_configured && !data.ejecutando) {
             cont.innerHTML =
-              '<div class="alert alert-success">SuperCiclo encontrado y ejecutado automáticamente.</div>';
-            if (!data.ejecutando) iniciarCiclo();
-            else cicloEnEjecucion = true;
+              '<div class="alert alert-success">SuperCiclo encontrado; iniciando ciclo…</div>';
+            iniciarCiclo();
+          } else if (!data.tuya_configured) {
+            cont.innerHTML =
+              '<div class="alert alert-warning">Hay horarios guardados; configurá Tuya en el menú para ejecutar el ciclo.</div>';
           } else {
+            cicloEnEjecucion = true;
             cont.innerHTML =
-              '<div class="alert alert-warning">No se encontró horarios.json</div>';
+              '<div class="alert alert-success">SuperCiclo encontrado y en ejecución.</div>';
           }
-        })
-        .catch((err) => {
-          console.error("Error verificando horarios:", err);
-          document.getElementById("estadoContainer").innerHTML =
-            '<div class="alert alert-danger">Error al verificar el ciclo.</div>';
-        });
+        } else {
+          cont.innerHTML = '<div class="alert alert-warning">No se encontró horarios.json</div>';
+        }
+      } catch (err) {
+        console.error(err);
+        cont.innerHTML = '<div class="alert alert-danger">Error al cargar la app.</div>';
+      }
     });
 
     // -------------------------
@@ -552,25 +588,12 @@ $$ |  $$ |      $$ |\$$$$$$$\ $$ |  $$ |\$$$$$$  |
     });
 
     // -------------------------
-    // Config.ini
-    // -------------------------
-    function abrirConfig() {
-      fetch("/config-ini", { method: "POST" })
-        .then(r => r.json())
-        .then(d => {
-          if (d.ok) showToast("Se abrió <code>config.ini</code>. <br>Reinicia la aplicación para aplicar cambios.", "info");
-          else showToast("Error al abrir config.ini: " + d.error, "danger");
-        })
-        .catch(err => showToast("Error: " + err.message, "danger"));
-    }
-
-    // -------------------------
     // Formulario Tuya
     // -------------------------
     const form = document.getElementById('tuyaForm');
     const btnOn = document.getElementById('btnOn');
     const btnOff = document.getElementById('btnOff');
-    const btnCheck = document.getElementById('btnCheck');
+    const btnGuardarTuya = document.getElementById('btnGuardarTuya');
     const statusBadge = document.getElementById('statusBadge');
     const pasteDevice = document.getElementById('pasteDevice');
     const showKey = document.getElementById('showKey');
@@ -630,8 +653,12 @@ $$ |  $$ |      $$ |\$$$$$$$\ $$ |  $$ |\$$$$$$  |
     // -------------------------
     async function callApi(path, successMsg, successVariant = 'success') {
       const cfg = readConfig();
-      if (!cfg.device_id || !cfg.ip || !cfg.local_key) {
-        showToast('Completá Device ID, IP y Local Key.', 'warning');
+      if (!cfg.device_id || !cfg.ip) {
+        showToast('Completá Device ID e IP.', 'warning');
+        return { ok: false, error: 'missing_fields' };
+      }
+      if (!cfg.local_key) {
+        showToast('Para probar ON/OFF ingresá la Local Key en el campo (si ya está guardada, pegala de nuevo para esta prueba).', 'warning');
         return { ok: false, error: 'missing_fields' };
       }
 
@@ -673,6 +700,37 @@ $$ |  $$ |      $$ |\$$$$$$$\ $$ |  $$ |\$$$$$$  |
     btnOn.addEventListener('click', async () => callApi('/api/tuya/on', 'Dispositivo ENCENDIDO', 'success'));
     btnOff.addEventListener('click', async () => callApi('/api/tuya/off', 'Dispositivo APAGADO', 'secondary'));
 
+    btnGuardarTuya.addEventListener('click', async () => {
+      const cfg = readConfig();
+      if (!cfg.device_id || !cfg.ip) {
+        showToast('Completá Device ID e IP.', 'warning');
+        return;
+      }
+      if (!cfg.local_key && !tuyaLocalKeySaved) {
+        showToast('Completá Local Key la primera vez.', 'warning');
+        return;
+      }
+      setBusy(btnGuardarTuya, true);
+      try {
+        const res = await fetch('/api/config/tuya', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(cfg),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) {
+          showToast(data.error || 'No se pudo guardar', 'danger');
+          return;
+        }
+        showToast('Configuración guardada en el servidor.', 'success');
+        await refreshTuyaFromServer();
+      } catch (e) {
+        showToast('Error: ' + e.message, 'danger');
+      } finally {
+        setBusy(btnGuardarTuya, false);
+      }
+    });
+
     // -------------------------
     // Modal Tuya: reset UI
     // -------------------------
@@ -681,6 +739,7 @@ $$ |  $$ |      $$ |\$$$$$$$\ $$ |  $$ |\$$$$$$  |
       form.classList.remove('was-validated');
       statusBadge.className = 'badge bg-secondary';
       statusBadge.textContent = 'Estado: desconocido';
+      refreshTuyaFromServer().catch(() => {});
     });
 </script>
 
